@@ -38,4 +38,9 @@ flutter run
 ```
 In Firebase Console create a Firestore database (Standard edition, `(default)`, test mode for this class only), then add the five fixtures to `campus_products` with **numeric** prices.
 
-`lib/firebase_options.dart` in this repo is a placeholder; no credentials, tokens, or service account keys are committed.
+## Verified results (Android emulator, Pixel 5 AVD)
+* `flutter test`: 29 tests passed. `flutter analyze`: no issues.
+* T1 to T8 were run on the emulator against Firestore project `campus-supply-desk-pine`; screenshots and the full table are in the Word report.
+
+## Firebase configuration
+`lib/firebase_options.dart` in this repo is a placeholder on purpose. The project's Firestore is in test mode for the lab, so its client config is kept out of the public repo; regenerate yours with `flutterfire configure --platforms=android`. No credentials, tokens, or service account keys are committed.
