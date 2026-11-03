@@ -96,7 +96,9 @@ class _ProductPageState extends State<ProductPage> {
       builder: (_) => _ProductEditor(products: _products, document: document),
     );
     if (saved == true) {
-      _showMessage(document == null ? 'Product added.' : 'Product updated.');
+      _showMessage(document == null
+          ? 'Product added (syncs to server when online).'
+          : 'Product updated (syncs to server when online).');
     }
   }
 
@@ -354,21 +356,24 @@ class _ProductEditorState extends State<_ProductEditor> {
 
     setState(() => _saving = true);
     final payload = {'name': name.value, 'price': price.value};
-    try {
-      if (widget.document == null) {
-        await widget.products.add(payload);
-      } else {
-        await widget.products.doc(widget.document!.id).update(payload);
-      }
-      if (!mounted) return;
-      Navigator.of(context).pop(true);
-    } on FirebaseException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _saving = false;
-        _saveError = 'Save failed: ${e.message ?? e.code}';
-      });
-    }
+    // Debugging revision (found in T7): awaiting add()/update() blocks until
+    // the SERVER acknowledges the write, so offline the sheet stayed stuck on
+    // "Saving…" even though the snapshot already showed the change with
+    // hasPendingWrites. The write is applied to the local cache immediately,
+    // so close the sheet now and report a later server rejection separately.
+    final messenger = ScaffoldMessenger.of(context);
+    final Future<void> write = widget.document == null
+        ? widget.products.add(payload)
+        : widget.products.doc(widget.document!.id).update(payload);
+    write.catchError((Object e) {
+      final msg = e is FirebaseException ? (e.message ?? e.code) : '$e';
+      messenger.showSnackBar(SnackBar(
+        content: Text('Server rejected the save: $msg'),
+        backgroundColor: Colors.red.shade700,
+      ));
+    });
+    if (!mounted) return;
+    Navigator.of(context).pop(true);
   }
 
   @override
