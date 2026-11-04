@@ -1,4 +1,4 @@
-# Campus Supply Desk (In-Class 12, Intro to Firebase, Class 2 Variant B)
+# Campus Supply Desk (In-Class 12, Intro to Firebase, Variant B)
 
 Undergraduate submission. A Flutter product manager backed by the Cloud Firestore collection `campus_products`.
 
